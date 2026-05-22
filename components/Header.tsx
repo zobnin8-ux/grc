@@ -28,7 +28,11 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm text-mist transition hover:text-snow"
+              className={
+                item.href.includes("emergency-field-response")
+                  ? "emergency-pulse-link text-sm"
+                  : "text-sm text-mist transition hover:text-snow"
+              }
             >
               {item.label}
             </Link>
@@ -61,7 +65,11 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="block py-2 text-mist"
+              className={
+                item.href.includes("emergency-field-response")
+                  ? "emergency-pulse-link block py-2"
+                  : "block py-2 text-mist"
+              }
               onClick={() => setOpen(false)}
             >
               {item.label}

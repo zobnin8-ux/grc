@@ -46,6 +46,50 @@ body {
   mix-blend-mode: overlay;
 }
 
+/* Emergency CTA pulse */
+@keyframes emergency-pulse-border {
+  0%,
+  100% {
+    border-color: rgb(179 38 30 / 0.45);
+    box-shadow: 0 0 0 0 rgb(179 38 30 / 0);
+  }
+  50% {
+    border-color: rgb(179 38 30 / 0.95);
+    box-shadow: 0 0 14px 2px rgb(179 38 30 / 0.28);
+  }
+}
+
+@keyframes emergency-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.82);
+  }
+}
+
+.emergency-pulse {
+  animation: emergency-pulse-border 2.8s ease-in-out infinite;
+}
+
+.emergency-pulse-link {
+  @apply inline-flex items-center gap-2 text-accent-amber transition hover:text-snow;
+}
+
+.emergency-pulse-link::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: #b3261e;
+  box-shadow: 0 0 8px rgb(179 38 30 / 0.55);
+  animation: emergency-dot-pulse 2.8s ease-in-out infinite;
+}
+
 /* 2. Service card wow */
 .service-card-wow {
   @apply relative rounded-lg border border-steel/30 bg-bg-card p-6 transition-all duration-300;
@@ -84,6 +128,10 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .hero-zoom-image {
+    animation: none;
+  }
+  .emergency-pulse,
+  .emergency-pulse-link::before {
     animation: none;
   }
   .process-step {

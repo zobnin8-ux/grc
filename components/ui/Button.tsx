@@ -15,7 +15,7 @@ const variants = {
   secondary:
     "bg-transparent text-snow border border-mist/30 hover:border-mist/60",
   emergency:
-    "bg-transparent text-accent-amber border border-accent-emergency/50 hover:bg-accent-emergency/10",
+    "emergency-pulse bg-transparent text-accent-amber border border-accent-emergency/50 hover:bg-accent-emergency/10",
 };
 
 export function Button({
