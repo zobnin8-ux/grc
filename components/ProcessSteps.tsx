@@ -7,7 +7,7 @@ type Props = {
 };
 
 export function ProcessSteps({ steps }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLOListElement>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
