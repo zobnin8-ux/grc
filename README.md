@@ -1,29 +1,37 @@
-# GRC US Site — Demo
+﻿# ArtemSite — US industrial website (GRC demo)
 
-Dark industrial demo for **Houston / Gulf Coast** field operations positioning.
+Единая рабочая папка на диске **D:\ArtemSite**.
 
-## Run locally
+## Структура
 
-```bash
+| Папка / файлы | Назначение |
+|---------------|------------|
+| `app/`, `components/`, `lib/` | Сайт-демо (Next.js) |
+| `docs/` | ТЗ, вопросы клиенту, стратегия |
+| `assets/` | Скриншоты и материалы |
+| `research/` | Снимки 1grc.ru, tissinc.com |
+
+## Запуск сайта
+
+```powershell
+cd D:\ArtemSite
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Открыть http://localhost:3000
 
-## Stack
+## GitHub
 
-- Next.js 15 (App Router)
-- TypeScript
-- Tailwind CSS
+https://github.com/zobnin8-ux/grc
 
-## Status
+```powershell
+cd D:\ArtemSite
+git add -A
+git commit -m "your message"
+git push
+```
 
-- **Demo / placeholder** copy and `[Company LLC]` contacts
-- Forms show success state only (email not wired)
-- Stock imagery via Unsplash
-- Case studies: 6 placeholder cards
+## Статус демо
 
-## Docs
-
-Strategy and client questionnaire live in the separate `ArtemSite/docs` workspace folder.
+Placeholder: `[Company LLC]`, кейсы — заглушки, формы без реальной почты.
