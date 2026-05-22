@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-bg text-snow antialiased;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+input,
+select,
+textarea {
+  @apply bg-bg-card border border-steel/40 text-snow placeholder:text-steel;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  @apply outline-none ring-1 ring-accent-orange/60 border-accent-orange/40;
+}
