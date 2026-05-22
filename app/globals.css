@@ -46,36 +46,7 @@ body {
   mix-blend-mode: overlay;
 }
 
-/* 2. Map pulse */
-@keyframes hub-pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.45;
-    transform: scale(1.65);
-  }
-}
-
-.map-hub-pulse {
-  transform-origin: center;
-  transform-box: fill-box;
-  animation: hub-pulse 2.8s ease-in-out infinite;
-}
-
-.map-line-draw {
-  stroke-dasharray: 200;
-  stroke-dashoffset: 200;
-  transition: stroke-dashoffset 1.4s ease-out;
-}
-
-.map-line-draw.is-visible {
-  stroke-dashoffset: 0;
-}
-
-/* 3. Service card wow */
+/* 2. Service card wow */
 .service-card-wow {
   @apply relative rounded-lg border border-steel/30 bg-bg-card p-6 transition-all duration-300;
 }
@@ -102,7 +73,7 @@ body {
   transform: scaleY(1);
 }
 
-/* 5. Process stagger */
+/* 3. Process stagger */
 .process-step {
   @apply flex gap-4 rounded-lg border border-steel/30 bg-bg-card p-4 opacity-0 translate-y-5 transition-all duration-500;
 }
@@ -115,15 +86,9 @@ body {
   .hero-zoom-image {
     animation: none;
   }
-  .map-hub-pulse {
-    animation: none;
-  }
   .process-step {
     opacity: 1;
     transform: none;
-  }
-  .map-line-draw {
-    stroke-dashoffset: 0;
   }
 }
 

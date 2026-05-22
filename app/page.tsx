@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ContactForm } from "@/components/ContactForm";
-import { GulfCoastMap } from "@/components/GulfCoastMap";
 import { Hero } from "@/components/Hero";
 import { OpsStatusLine } from "@/components/OpsStatusLine";
 import { ProcessSteps } from "@/components/ProcessSteps";
@@ -39,13 +38,21 @@ export default function HomePage() {
         title="Full capability. Rapid deployment."
         description="Mobile field crews are part of a broader industrial support system — built to reduce downtime and keep critical operations moving."
       >
-        <div className="grid gap-8 lg:grid-cols-2">
+        <div className="grid gap-8 md:grid-cols-2">
           <p className="text-mist">
             We mobilize machining and mechanical support to active facilities across the Gulf
             Coast — with field discipline, equipment readiness, and scope aligned to your outage
             or emergency window.
           </p>
-          <GulfCoastMap />
+          <div className="rounded-lg border border-steel/30 bg-bg-card p-6">
+            <p className="font-mono text-xs uppercase text-accent-amber">Mobilization hub</p>
+            <p className="mt-2 font-display text-2xl font-bold">Houston, TX</p>
+            <ul className="mt-4 space-y-1 text-sm text-mist">
+              {gulfCities.slice(0, 5).map((c) => (
+                <li key={c}>→ {c}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </Section>
 
