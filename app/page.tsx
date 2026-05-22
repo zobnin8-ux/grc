@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ContactForm } from "@/components/ContactForm";
 import { Hero } from "@/components/Hero";
+import { OpsStatusLine } from "@/components/OpsStatusLine";
+import { ProcessSteps } from "@/components/ProcessSteps";
 import { Section } from "@/components/Section";
 import { Button } from "@/components/ui/Button";
 import {
@@ -16,6 +18,7 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+      <OpsStatusLine />
 
       <div className="border-y border-steel/20 bg-bg-panel">
         <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-2 px-4 py-4 md:gap-3 md:px-6">
@@ -63,7 +66,7 @@ export default function HomePage() {
             <Link
               key={s.slug}
               href={`/services/${s.slug}`}
-              className="group rounded-lg border border-steel/30 bg-bg-card p-6 transition hover:border-accent-orange/50"
+              className="service-card-wow group block"
             >
               {s.core && (
                 <span className="font-mono text-[10px] uppercase tracking-widest text-accent-orange">
@@ -124,16 +127,7 @@ export default function HomePage() {
         label="Process"
         title="How field support moves"
       >
-        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {processSteps.map((step, i) => (
-            <li key={step} className="flex gap-4 rounded-lg border border-steel/30 bg-bg-card p-4">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-amber/20 font-mono text-sm text-accent-amber">
-                {i + 1}
-              </span>
-              <span className="text-sm text-mist">{step}</span>
-            </li>
-          ))}
-        </ol>
+        <ProcessSteps steps={processSteps} />
       </Section>
 
       <Section

@@ -20,6 +20,126 @@ body {
   }
 }
 
+/* 1. Hero slow zoom */
+@keyframes hero-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.09);
+  }
+}
+
+.hero-zoom-image {
+  animation: hero-zoom 28s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* Film grain overlay */
+.hero-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+/* Emergency CTA pulse */
+@keyframes emergency-pulse-border {
+  0%,
+  100% {
+    border-color: rgb(179 38 30 / 0.45);
+    box-shadow: 0 0 0 0 rgb(179 38 30 / 0);
+  }
+  50% {
+    border-color: rgb(179 38 30 / 0.95);
+    box-shadow: 0 0 14px 2px rgb(179 38 30 / 0.28);
+  }
+}
+
+@keyframes emergency-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.82);
+  }
+}
+
+.emergency-pulse {
+  animation: emergency-pulse-border 2.8s ease-in-out infinite;
+}
+
+.emergency-pulse-link {
+  @apply inline-flex items-center gap-2 text-accent-amber transition hover:text-snow;
+}
+
+.emergency-pulse-link::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: #b3261e;
+  box-shadow: 0 0 8px rgb(179 38 30 / 0.55);
+  animation: emergency-dot-pulse 2.8s ease-in-out infinite;
+}
+
+/* 2. Service card wow */
+.service-card-wow {
+  @apply relative rounded-lg border border-steel/30 bg-bg-card p-6 transition-all duration-300;
+}
+
+.service-card-wow::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #ff6a1a;
+  border-radius: 4px 0 0 4px;
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.3s ease;
+}
+
+.service-card-wow:hover {
+  @apply -translate-y-1 border-accent-orange/50 shadow-[0_12px_40px_rgba(0,0,0,0.35)];
+}
+
+.service-card-wow:hover::before {
+  transform: scaleY(1);
+}
+
+/* 3. Process stagger */
+.process-step {
+  @apply flex gap-4 rounded-lg border border-steel/30 bg-bg-card p-4 opacity-0 translate-y-5 transition-all duration-500;
+}
+
+.process-step.is-visible {
+  @apply opacity-100 translate-y-0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-zoom-image {
+    animation: none;
+  }
+  .emergency-pulse,
+  .emergency-pulse-link::before {
+    animation: none;
+  }
+  .process-step {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 input,
 select,
 textarea {
