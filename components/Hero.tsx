@@ -4,15 +4,17 @@ import { Button } from "./ui/Button";
 
 export function Hero() {
   return (
-    <section className="relative min-h-[88vh] overflow-hidden">
-      <Image
-        src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1920&q=80"
-        alt="Industrial field operations"
-        fill
-        priority
-        className="object-cover"
-        sizes="100vw"
-      />
+    <section className="hero-grain relative min-h-[88vh] overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden">
+        <Image
+          src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1920&q=80"
+          alt="Industrial field operations"
+          fill
+          priority
+          className="hero-zoom-image object-cover"
+          sizes="100vw"
+        />
+      </div>
       <div className="absolute inset-0 bg-hero-gradient" />
       <div className="relative mx-auto flex min-h-[88vh] max-w-6xl flex-col justify-center px-4 py-24 md:px-6">
         <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent-amber">
