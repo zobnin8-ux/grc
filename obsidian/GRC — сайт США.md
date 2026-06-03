@@ -11,8 +11,9 @@ tags:
   - industrial
   - nextjs
   - project-hub
+  - intake
 status: active
-version: "1.1"
+version: "1.2"
 updated: 2026-05-22
 repo: https://github.com/zobnin8-ux/grc
 local_path: D:\ArtemSite
@@ -36,6 +37,8 @@ local_path: D:\ArtemSite
 | Word (стратегия) | `docs/Кратко-стратегия-сайт-США-пункты-1-5.docx` |
 | Репозиторий / dev | [[README]] |
 | Контент сайта (код) | `lib/site.ts` |
+| Прокси заявок | `app/api/lead/route.ts` |
+| Env-шаблон | `.env.example` |
 | TISS разбор | `docs/Главная проблема TISS.docx` |
 
 **Внешние ссылки**
@@ -50,14 +53,14 @@ local_path: D:\ArtemSite
 
 | Поле | Значение |
 |------|----------|
-| **Фаза** | Demo / MVP на Next.js |
+| **Фаза** | MVP: демо в проде + intake на `preview` |
 | **Язык сайта** | English only |
 | **Рынок** | Houston · US Gulf Coast |
-| **Ветка стабильная** | `main` |
-| **Ветка с эффектами** | `preview` → Vercel Preview |
-| **Деплой** | Vercel (привязка к `zobnin8-ux/grc`) |
+| **Ветка стабильная** | `main` — без wow-эффектов, **без** `/api/lead` (пока) |
+| **Ветка рабочая** | `preview` — wow + **GRC intake** |
+| **Деплой** | Vercel (`zobnin8-ux/grc`) |
 | **LLC / домен / телефон** | Placeholders в `lib/site.ts` |
-| **Формы** | UI + success; почта **не** подключена |
+| **Формы** | На **`preview`**: `/contact` → `POST /api/lead` → GRC intake → Pipedrive + Telegram |
 | **Кейсы** | 6 заглушек, контент от клиента |
 | **RU-сайт** | Отдельный репозиторий / папка — **не смешивать** |
 
@@ -68,9 +71,54 @@ local_path: D:\ArtemSite
 - [ ] ~6 реальных кейсов EN (без имён RU-заводов)
 - [ ] Фото: замена стока пакетом от клиента
 - [ ] Trust: COI, certs — только подтверждённые
-- [ ] Backend форм (email / Resend / и т.д.)
+- [x] Backend форм → GRC intake (на `preview`, merge в `main` — TBD)
+- [ ] `INTAKE_TOKEN` в Vercel Production (и Preview при тесте)
 - [ ] Домен + DNS
-- [ ] Решение: merge `preview` → `main` или оставить эффекты только на preview
+- [ ] SEO: meta/OG по страницам
+- [ ] Merge `preview` → `main` (эффекты + intake)
+
+---
+
+## Интеграция заявок (GRC intake)
+
+> Актуально для ветки **`preview`** (коммиты `0b67dc1`, `cdad04c`).
+
+### Цепочка
+
+```
+/contact (ContactForm.tsx)
+  → POST /api/lead  (сервер Next.js, app/api/lead/route.ts)
+    → Supabase Edge Function intake
+      → enrich → Pipedrive (сделка) + Telegram (уведомление)
+```
+
+**Почему прокси, а не прямой вызов из браузера:** `INTAKE_TOKEN` только в env сервера, не утекает в клиент. На роуте — honeypot (`company_website`).
+
+### Env (Vercel + `.env.local`)
+
+| Переменная | Назначение |
+|------------|------------|
+| `INTAKE_URL` | URL intake (в коде дефолт на prod Supabase; можно не задавать) |
+| `INTAKE_TOKEN` | Общий секрет с Supabase intake — **обязателен в prod** |
+
+Шаблон: `.env.example` → скопировать в `.env.local`.
+
+### Поля формы
+
+`name`, `phone`, `email`, `company`, `location`, `urgency`, `message` + скрытый honeypot.
+
+- Обязателен **телефон или email**
+- `form`: `contact` или `emergency` (короткая форма)
+- Имя / компания / срочность → заголовок сделки в Pipedrive
+- Загрузка файлов — **пока нет** (demo)
+
+### Ключевые файлы
+
+| Файл | Роль |
+|------|------|
+| `components/ContactForm.tsx` | UI, fetch `/api/lead`, состояния sending/sent/error |
+| `app/api/lead/route.ts` | Валидация, honeypot, прокси в intake |
+| `.env.example` | Документация env |
 
 ---
 
@@ -96,7 +144,7 @@ local_path: D:\ArtemSite
 | Структура launch | **10 сильных + 2 коротких + 1 hub** |
 | Кейсы launch | **~6** EN, без Severstal и т.п. |
 | Insurance / certs | После LLC; Trust block **без выдумок** |
-| Формы MVP | Email (маршрутизация emergency — TBD) |
+| Формы | **GRC intake** (не Resend/SMTP на сайте) |
 | Фото старт | Сток допустим → замена |
 
 Подробно: [[docs/Мастер-документ-сайт-США#6. Зафиксированные решения заказчика]]
@@ -115,7 +163,7 @@ local_path: D:\ArtemSite
 
 **Слабости:** нет CTA на главной, нет H1/meta, generic «leading provider», proof спрятан (150" VTL — только в Shop), brochure ~2014.
 
-**Как бьём:** proof на первом экране, `tel:` + форма, emergency CTA, equipment-страница, тёмный operational UI, field-first.
+**Как бьём:** proof на первом экране, `tel:` + форма с реальным intake, emergency CTA, equipment-страница, тёмный operational UI, field-first.
 
 ### 1grc.ru (внутренний ориентир)
 
@@ -139,14 +187,14 @@ local_path: D:\ArtemSite
 | 8 | `/equipment` | Fleet | ✅ |
 | 9 | `/service-area` | Gulf Coast | ✅ |
 | 10 | `/about` | About | ✅ |
-| 11 | `/contact` | Intake | ✅ |
+| 11 | `/contact` | Intake → `/api/lead` | ✅ на `preview` |
 | 12 | `/services/rotating-equipment` | Короткая | ✅ |
 | 13 | `/services/industrial-mechanical-services` | Короткая | ✅ |
 
 **Core на hub:** Field Machining, Emergency, Shutdown, Mobile Crews, Equipment narrative.  
 **Extended:** Rotating, Mechanical — короткие / «contact for scope».
 
-**Фаза 2:** отдельный `/industries`, blog/SEO, цифры insurance, больше projects.
+**Фаза 2:** отдельный `/industries`, blog/SEO, цифры insurance, больше projects, upload файлов в форме.
 
 Полная карта секций Home: [[docs/Мастер-документ-сайт-США#8.1 Home]]
 
@@ -172,6 +220,7 @@ Field Machining · Rotating Equipment · Mechanical Services · Shutdown Support
 - Российские бренды заводов на US-кейсах
 - Партнёры, dual-language RU/EN
 - Карта с «лучами» (пробовали на preview — **снято**)
+- `INTAKE_TOKEN` в клиентском коде или в git
 
 Список: [[docs/Мастер-документ-сайт-США#17. Запреты (anti-patterns)]]
 
@@ -184,29 +233,40 @@ Field Machining · Rotating Equipment · Mechanical Services · Shutdown Support
 - Next.js 15 (App Router)
 - React 19, TypeScript, Tailwind 3.4
 - Шрифты: Inter, Oswald, IBM Plex Mono (`next/font`)
+- Backend заявок: Supabase Edge Function (GRC intake), не на этом репо
 
 ### Структура (ключевое)
 
 ```
-app/           → страницы, layout, globals.css
-components/    → Hero, Header, Footer, формы, wow-компоненты
-lib/site.ts    → единый источник контента
-docs/          → ТЗ, стратегия, вопросы
-research/      → снимки конкурентов
-obsidian/      → эта заметка
+app/
+  api/lead/route.ts   → прокси в GRC intake (preview)
+  page.tsx, layout.tsx, globals.css
+components/           → Hero, Header, Footer, ContactForm, wow-компоненты
+lib/site.ts           → контент и плейсхолдеры
+docs/                 → ТЗ, стратегия, вопросы
+research/             → снимки конкурентов
+obsidian/             → эта заметка
+.env.example          → INTAKE_URL, INTAKE_TOKEN
 ```
 
 ### Ветки Git
 
+| Ветка | Содержимое |
+|-------|------------|
+| `main` | Стабильное демо, wow **нет**, intake **нет** (на момент v1.2) |
+| `preview` | Wow-эффекты + `/api/lead` + обновлённый [[README]] |
+
 ```powershell
-git checkout main      # без wow-эффектов
-git checkout preview   # hero, status line, cards, process, emergency pulse
+git checkout main
+git checkout preview
 ```
 
-### Локальный запуск
+### Локальный запуск (с формой)
 
 ```powershell
 cd D:\ArtemSite
+copy .env.example .env.local
+# заполнить INTAKE_TOKEN
 npm install
 npm run dev
 # http://localhost:3000
@@ -251,15 +311,17 @@ email: "ops@[domain].com"
 | **E** | Куда лиды, срочность, чат, вложения |
 | **F** | COI, certs (только подтверждённые) |
 
-**Статус ответов:** _ожидаем клиента_
+**Статус ответов:** _ожидаем клиента_  
+**Intake:** технически готов на `preview`; маршрутизация emergency vs ops — уточнить с клиентом (блок E).
 
 ---
 
-## 9. SEO и формы (напоминание)
+## 9. SEO и деплой (напоминание)
 
-- **SEO:** H1 на каждой странице, meta description, title template — см. мастер-док §11
-- **Формы MVP:** поля + success UI; production — Server Action / API + email
-- **Emergency:** отдельный номер или один — TBD; на preview — визуальный пульс CTA
+- **SEO:** H1 на каждой странице, meta description — см. мастер-док §11
+- **Vercel Production:** `main` (или `preview` после merge)
+- **Vercel env:** `INTAKE_TOKEN` обязателен для рабочей формы
+- **Preview deployments:** ветка `preview` — отдельный URL на push
 
 ---
 
@@ -273,30 +335,33 @@ email: "ops@[domain].com"
 
 ---
 
-## 11. Журнал решений (короткий log)
+## 11. Журнал решений (log)
 
 | Дата | Решение |
 |------|---------|
 | 2026-05 | US-only, EN, 10+2+1, placeholders LLC |
 | 2026-05 | Demo Next.js → GitHub `zobnin8-ux/grc` |
-| 2026-05 | Ветка `preview`: 5 wow-эффектов |
-| 2026-05 | Карта с лучами — **отклонена**, вернули Mobilization hub card |
+| 2026-05 | Ветка `preview`: wow-эффекты на главной |
+| 2026-05 | Карта с лучами — **отклонена**, Mobilization hub card |
 | 2026-05 | Emergency pulse на preview |
-| 2026-05 | Полный [[README]] + эта Obsidian-заметка |
+| 2026-05 | Полный [[README]] + Obsidian-хаб v1.1 |
+| 2026-05 | **Форма → GRC intake** через `/api/lead` (preview) |
+| 2026-05 | README: раздел интеграции заявок, `.env.example` |
 
 ---
 
-## 12. Следующие шаги (когда вернётесь к проекту)
+## 12. Следующие шаги
 
-1. Получить ответы → обновить `lib/site.ts` и тексты страниц  
+1. Получить ответы клиента → `lib/site.ts` и тексты  
 2. Заменить 6 project placeholders  
-3. Подключить отправку форм  
-4. Согласовать merge `preview` → `main`  
-5. Production domain на Vercel  
+3. Merge `preview` → `main` (intake + wow — по согласованию)  
+4. `INTAKE_TOKEN` в Vercel Production  
+5. Production domain + DNS  
+6. Фаза 2: upload файлов, отдельный emergency routing  
 
 ---
 
-## Связанные заметки (для графа Obsidian)
+## Связанные заметки (граф Obsidian)
 
 - [[README]]
 - [[docs/Мастер-документ-сайт-США]]
@@ -305,4 +370,4 @@ email: "ops@[domain].com"
 
 ---
 
-*Версия хаба: 1.1 · обновляйте поле `updated` в frontmatter при крупных изменениях.*
+*Версия хаба: 1.2 · обновляйте `updated` в frontmatter при крупных изменениях.*
