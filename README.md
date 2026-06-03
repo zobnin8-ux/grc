@@ -15,6 +15,7 @@
 - [Быстрый старт](#быстрый-старт)
 - [Скрипты](#скрипты)
 - [Страницы сайта](#страницы-сайта)
+- [Интеграция заявок (GRC intake)](#интеграция-заявок-grc-intake)
 - [Структура репозитория](#структура-репозитория)
 - [Конфигурация контента](#конфигурация-контента)
 - [UI и эффекты (ветка preview)](#ui-и-эффекты-ветка-preview)
@@ -34,7 +35,7 @@
 | **Позиционирование** | Full-scale field operations + rapid deployment (не «перевод RU-сайта») |
 | **Язык сайта** | English only |
 | **Конкуренты (анализ)** | [1grc.ru](https://www.1grc.ru), [tissinc.com](https://tissinc.com/) — см. `research/`, `docs/` |
-| **Статус** | Demo / MVP: плейсхолдеры LLC, телефона, домена; формы без бэкенда почты |
+| **Статус** | MVP в проде: плейсхолдеры LLC/телефона/домена; **форма `/contact` подключена к системе GRC** (заявки → CRM Pipedrive + Telegram) |
 
 Сайт построен на **Next.js App Router**, тёмная «операционная» тема (Tailwind), шрифты Inter / Oswald / IBM Plex Mono.
 
@@ -110,10 +111,37 @@ npm run start
 | `/equipment` | Оборудование / готовность к выезду |
 | `/projects` | Кейсы (заглушки до контента от клиента) |
 | `/about` | О компании |
-| `/contact` | Форма заявки (UI; отправка почты не подключена) |
+| `/contact` | Форма заявки → серверный роут `/api/lead` → система GRC (Pipedrive + Telegram) |
 
 **Слуги (slug в `lib/site.ts`):**  
 `field-machining`, `emergency-field-response`, `shutdown-turnaround-support`, `mobile-field-crews`, `rotating-equipment`, `mechanical-services`
+
+---
+
+## Интеграция заявок (GRC intake)
+
+Форма `/contact` (`components/ContactForm.tsx`) отправляет заявку на **серверный роут** `app/api/lead/route.ts`, который пересылает её в систему GRC (Supabase Edge Function `intake`). Дальше бэкенд сам: кладёт лид, создаёт сделку в **Pipedrive** и шлёт уведомление в **Telegram**.
+
+```
+форма /contact → POST /api/lead (сервер сайта) → GRC intake → enrich → Pipedrive + Telegram
+```
+
+**Почему через серверный роут, а не напрямую:** токен `INTAKE_TOKEN` хранится в env сайта и **не попадает в браузер**. Плюс на роуте — honeypot-защита от ботов.
+
+### Переменные окружения
+
+Задать в Vercel (Project → Settings → Environment Variables) и локально в `.env.local` (см. `.env.example`):
+
+| Переменная | Назначение |
+|---|---|
+| `INTAKE_URL` | эндпоинт GRC intake (в коде уже есть прод-дефолт, можно не задавать) |
+| `INTAKE_TOKEN` | общий секрет; **должен совпадать** с секретом `INTAKE_TOKEN` на стороне Supabase |
+
+> `INTAKE_TOKEN` — серверный секрет, в репозиторий не коммитится (`.env*.local` в `.gitignore`).
+
+### Поля формы
+
+`name`, `phone`, `email`, `company`, `location`, `urgency`, `message`. Обязателен телефон **или** email. Имя/компания/срочность попадают в заголовок сделки Pipedrive (`[Срочность] Имя — Компания`). Загрузка файлов пока не отправляется (demo).
 
 ---
 
@@ -170,7 +198,7 @@ export const site = {
 - реальные кейсы в `projects`  
 - блок Trust (страховка, сертификаты)
 
-Формы на `/contact` показывают success UI; для продакшена нужен **Server Action**, API route или сервис (Resend, Formspree, и т.д.).
+Форма `/contact` подключена к системе GRC через серверный роут `/api/lead` (см. раздел «Интеграция заявок» ниже). Email-провайдер (Resend/SMTP) на сайте не нужен — обработкой занимается бэкенд GRC.
 
 ---
 
@@ -197,10 +225,10 @@ export const site = {
 3. **Production branch:** `main`  
 4. **Preview:** включить для ветки `preview` — отдельный URL на каждый push.
 
-Переменные окружения для MVP не обязательны. После подключения почты добавьте, например:
+Для работы формы задайте переменную окружения (Production, и Preview если тестируете на preview-URL):
 
-- `RESEND_API_KEY` или аналог  
-- `CONTACT_TO_EMAIL`
+- `INTAKE_TOKEN` — общий секрет с Supabase intake (обязательно)
+- `INTAKE_URL` — опционально (в коде есть прод-дефолт)
 
 ```powershell
 # опционально: CLI
@@ -229,7 +257,7 @@ npx vercel --prod
 
 - [ ] Заполнить `lib/site.ts` (LLC, phone, email, domain)
 - [ ] Реальные кейсы EN (~6), без русских названий заводов
-- [ ] Подключить отправку форм
+- [x] Подключить отправку форм (→ GRC intake через `/api/lead`)
 - [ ] Trust: COI, certs — по готовности полиса
 - [ ] Домен + DNS на Vercel
 - [ ] SEO: уточнить meta/OG по страницам
